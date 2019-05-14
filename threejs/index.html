@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>Draco Decoder - First Person Control</title>
+    <link rel="stylesheet" href="firstPerson.css">
+    <script src="https://rawgit.com/mrdoob/three.js/master/build/three.min.js"></script>
+    <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/WebGL.js"></script>
+    <script src="https://rawgit.com/google/draco/master/javascript/example/DRACOLoader.js"></script>
+    <script src="https://rawgit.com/google/draco/master/javascript/draco_decoder.js"></script>
+    <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/controls/PointerLockControls.js"></script>
+    <!-- <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/controls/OrbitControls.js"></script> -->
+    <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/libs/stats.min.js"></script>
+    <!-- <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/libs/dat.gui.min.js"></script> -->
+  </head>
+  <body>
+    <div id="page-wrapper">
+      <h3>Open a draco compressed file (.drc):</h3>
+      <div>
+        <input type="file" id="fileInput">
+      </div>
+    </div>
+    <div id="blocker">
+      <div id="instructions">
+        <span id="instructionsheader">Click to play</span>
+        <br />
+        W, A, S, D = Move
+        <br />
+        Q, E = Fly up/down
+        <br />
+        SPACE = Zoom in/out
+        <br />
+        SHIFT = Boost
+        <br />
+        MOUSE = Look around
+      </div>
+    </div>
+    <script src="firstPerson.js" charset="utf-8"></script>
+  </body>
+</html>
