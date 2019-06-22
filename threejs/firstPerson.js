@@ -4,15 +4,20 @@ if (!WEBGL.isWebGLAvailable()) {
   document.body.appendChild(WEBGL.getWebGLErrorMessage());
 }
 let renderer, camera, scene;
-let pointerLockControls, raycaster, position;
+let pointerLockControls, position;
 // let orbitControls;
 
 let clock = new THREE.Clock();
 let dracoLoader = new THREE.DRACOLoader();
+THREE.DRACOLoader.getDecoderModule();
+THREE.DRACOLoader.setDecoderPath('.');
+let stats = new Stats(); // stats
 
 let blocker = document.getElementById('blocker');
 let instructions = document.getElementById('instructions');
 let pageWrapper = document.getElementById('page-wrapper');
+pageWrapper.style.display = 'none';
+// let loader = document.getElementById('loader');
 
 let moveForward = false;
 let moveBackward = false;
@@ -21,17 +26,19 @@ let moveRight = false;
 let flyUp = false;
 let flyDown = false;
 // let canJump = false;
-let zoom = false;
 let boost = false;
 
 let velocity = new THREE.Vector3();
-let direction = new THREE.Vector3();
+let direction = new THREE.Vector3(); // direction of movements
+let rotation = new THREE.Vector3(); // current camera direction
+
 const speed = 500.0;
 // const upSpeed = 200.0;
 const eyeLevel = 10.0;
 const geometryScale = 10;
-const zoomLevel = 2;
-const boostFactor = 5;
+const zoomFactor = 3;
+const boostFactor = 3;
+const pointSize = 3;
 
 const container = document.createElement('div');
 document.body.appendChild(container);
@@ -42,14 +49,14 @@ function initRender() {
 
   // scene
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xeeeeeff);
+  scene.background = new THREE.Color(0xffffff);
   // scene.fog = new THREE.Fog(0xeeeeff, 0, 2000);
   // axes helper
   // scene.add(new THREE.AxesHelper(100));
-  // gui
-  // let datGui = new dat.GUI;
+  // control panel gui
+  // createPanel();
   // lights
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xeeeeee));
+  scene.add(new THREE.AmbientLight());
   // addShadowedLight(0, 100, 10, 0xffffff, 1);
   // addShadowedLight(50, 100, -100, 0xeeeeee, 1);
 
@@ -62,13 +69,25 @@ function initRender() {
   container.appendChild(renderer.domElement);
   window.addEventListener('resize', onWindowResize, false);
 }
+// function createPanel() {
+//   let panel = new dat.GUI({width: 300});
+//   let folder = panel.addFolder('Setting');
+//   settings = {
+//     'point size': pointSize,
+//     'zoom factor': 3,
+//     'boost factor': 3,
+//     'speed': 500,
+//     'geometry scale': 10
+//   };
+//   folder.add(settings, 'point size', 1, 30, 1).onChange(
+//     (size) => {pointSize = size}
+//   );
+// }
 function initControls() {
-  // stats
-  let stats = new Stats();
   // orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
   pointerLockControls = new THREE.PointerLockControls(camera);
   pointerLockControls.getObject().position.y = eyeLevel;
-  pointerLockControls.getObject().position.z = 10.0;
+  pointerLockControls.getObject().position.z = eyeLevel;
 
   instructions.addEventListener('click', () => {
     pointerLockControls.lock();
@@ -76,32 +95,32 @@ function initControls() {
   pointerLockControls.addEventListener('lock', () => {
     instructions.style.display = 'none';
     blocker.style.display = 'none';
-    pageWrapper.style.display = 'none';
+    // pageWrapper.style.display = 'none';
     container.appendChild(stats.dom);
   });
   pointerLockControls.addEventListener('unlock', () => {
     blocker.style.display = 'block';
     instructions.style.display = '';
-    pageWrapper.style.display = '';
+    // pageWrapper.style.display = '';
     container.removeChild(stats.dom);
   });
   scene.add(pointerLockControls.getObject());
 
   const onKeyDown = event => {
     switch (event.keyCode) {
-      // case 38: // up
+      case 38: // up
       case 87: // w
         moveForward = true;
         break;
-      // case 37: // left
+      case 37: // left
       case 65: // a
         moveLeft = true;
         break;
-      // case 40: // down
+      case 40: // down
       case 83: // s
         moveBackward = true;
         break;
-      // case 39: // right
+      case 39: // right
       case 68: // d
         moveRight = true;
         break;
@@ -118,13 +137,7 @@ function initControls() {
       //   canJump = false;
       //   break;
       case 32: // space
-        const focalLength = camera.getFocalLength();
-        if (zoom) { // zoom out
-          camera.setFocalLength(focalLength/zoomLevel);
-        } else { // zoom in
-          camera.setFocalLength(focalLength*zoomLevel);
-        }
-        zoom = !zoom;
+        camera.zoom = zoomFactor;
         camera.updateProjectionMatrix();
         break;
       case 16: // shift
@@ -134,19 +147,19 @@ function initControls() {
   };
   const onKeyUp = event => {
     switch (event.keyCode) {
-      // case 38: // up
+      case 38: // up
       case 87: // w
         moveForward = false;
         break;
-      // case 37: // left
+      case 37: // left
       case 65: // a
         moveLeft = false;
         break;
-      // case 40: // down
+      case 40: // down
       case 83: // s
         moveBackward = false;
         break;
-      // case 39: // right
+      case 39: // right
       case 68: // d
         moveRight = false;
         break;
@@ -156,34 +169,58 @@ function initControls() {
       case 69: // e
         flyDown = false;
         break;
+      case 32: // space
+        camera.zoom = 1;
+        camera.updateProjectionMatrix();
+        break;
       case 16: // shift
         boost = false;
         break;
     }
     console.log(
-      'controls position: ',
+      'controls: ',
       pointerLockControls.getObject().position
     );
   };
   document.addEventListener('keydown', onKeyDown, false);
   document.addEventListener('keyup', onKeyUp, false);
-
-  raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(1, 0, 0), 0, 100);
 }
 function initModel() {
-  const floorGeometry = new THREE.PlaneBufferGeometry(2000, 2000, 100, 100);
-  floorGeometry.rotateX(-Math.PI/2);
-  // floorGeometry = floorGeometry.toNonIndexed();
-  position = floorGeometry.attributes.position;
-
-  const floorMaterial = new THREE.MeshBasicMaterial({
-    vertexColors: THREE.VertexColors,
-    wireframe: true
-  });
-
-  const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-  scene.add(floor);
-  floor.name = 'model';
+  // const floorGeometry = new THREE.PlaneBufferGeometry(10000, 10000, 100, 100);
+  // floorGeometry.rotateX(-Math.PI/2);
+  // // floorGeometry = floorGeometry.toNonIndexed();
+  // position = floorGeometry.attributes.position;
+  //
+  // const floorMaterial = new THREE.MeshBasicMaterial({
+  //   vertexColors: THREE.VertexColors,
+  //   wireframe: true
+  // });
+  //
+  // const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+  // scene.add(floor);
+  // floor.name = 'model';
+  // dracoLoader.setVerbosity(1);
+  dracoLoader.load(
+    'globalShifted_pointCloud_for_viewing.drc',
+    onDecode,
+    function(xhr) {
+      console.log((xhr.loaded/xhr.total*100) + '% loaded');
+      // loader.style.display = '';
+      const loader = document.createElement('div');
+      loader.setAttribute('id', 'loader');
+      // if (xhr.loaded < xhr.total) {
+      //   container.appendChild(loader);
+      //   instructions.style.display = 'none';
+      // } else {
+      //   container.removeChild(loader);
+      //   instructions.style.display = '';
+      // }
+    },
+    function(error) {
+      console.log('An error happened');
+    }
+  );
+  dracoLoader.decodeDracoFile('globalShifted_pointCloud_for_viewing.drc', onDecode);
 }
 function addShadowedLight(x, y, z, color, intensity) {
   const directionalLight = new THREE.DirectionalLight(color, intensity);
@@ -191,15 +228,20 @@ function addShadowedLight(x, y, z, color, intensity) {
   directionalLight.castShadow = true;
   scene.add(directionalLight);
 }
-function resizeGeometry(bufferGeometry, material) {
-  let geometry;
+function resizeGeometry(bufferGeometry) {
+  let geometry, material;
   bufferGeometry.rotateX(-Math.PI/2);
   position = bufferGeometry.attributes.position;
   if (bufferGeometry.index) {
     bufferGeometry.computeVertexNormals();
+    material = new THREE.MeshStandardMaterial({vertexColors: THREE.VertexColors});
     geometry = new THREE.Mesh(bufferGeometry, material);
   } else {
     // point cloud does not have face indices
+    material = new THREE.PointsMaterial({
+      vertexColors: THREE.VertexColors,
+      size: pointSize
+    });
     geometry = new THREE.Points(bufferGeometry, material);
   }
   // Compute range of the geometry coordinates for proper rendering.
@@ -212,11 +254,10 @@ function resizeGeometry(bufferGeometry, material) {
   // const scale = 1.0/diagonalSize;
   // const midX = (bufferGeometry.boundingBox.min.x + bufferGeometry.boundingBox.max.x)/2;
   // const midZ = (bufferGeometry.boundingBox.min.z + bufferGeometry.boundingBox.min.z)/2;
-  // console.log('bufferGeometry sizeX, sizeY, sizeZ', sizeX, sizeY, sizeZ);
 
   // geometry.scale.multiplyScalar(scale);
   // geometry.position.x = -midX*scale;
-  // geometry.position.y = 0.5*scale;//-midY*scale;
+  // geometry.position.y = -midY*scale;
   // geometry.position.z = -midZ*scale;
   // geometry.castShadow = true;
   // geometry.receiveShadow = true;
@@ -238,12 +279,13 @@ function init() {
   initRender();
   initControls();
   initModel();
+  loader.style.display = 'none';
 }
 function animate() {
   requestAnimationFrame(animate);
+  stats.update();
   if (pointerLockControls.isLocked) {
-    raycaster.ray.origin.copy(pointerLockControls.getObject(), position);
-    // raycaster.ray.origin.y -= eyeLevel;
+    let control = pointerLockControls.getObject();
 
     const delta = clock.getDelta();
 
@@ -279,26 +321,26 @@ function animate() {
   renderer.render(scene, camera);
 }
 function onDecode(bufferGeometry) {
-  const material = new THREE.MeshStandardMaterial({vertexColors: THREE.VertexColors});
-  const geometry = resizeGeometry(bufferGeometry, material);
-  const selectedObject = scene.getObjectByName('model');
-  scene.remove(selectedObject);
+  // const material = new THREE.MeshStandardMaterial({vertexColors: THREE.VertexColors});
+  const geometry = resizeGeometry(bufferGeometry);
+  // const selectedObject = scene.getObjectByName('model');
+  // scene.remove(selectedObject);
   geometry.name = 'model';
   scene.add(geometry);
 }
 window.onload = () => {
-  const fileInput = document.getElementById('fileInput');
-  fileInput.onclick = () => this.value = '';
-  fileInput.addEventListener('change', e => {
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = e => {
-      // Enable logging to console output.
-      dracoLoader.setVerbosity(1);
-      dracoLoader.decodeDracoFile(reader.result, onDecode);
-    }
-    reader.readAsArrayBuffer(file);
-  });
+  // const fileInput = document.getElementById('fileInput');
+  // fileInput.onclick = () => this.value = '';
+  // fileInput.addEventListener('change', e => {
+  //   const file = fileInput.files[0];
+  //   const reader = new FileReader();
+  //   reader.onload = e => {
+  //     // Enable logging to console output.
+  //     dracoLoader.setVerbosity(1);
+  //     dracoLoader.decodeDracoFile(reader.result, onDecode);
+  //   }
+  //   reader.readAsArrayBuffer(file);
+  // });
   init();
   animate();
 }

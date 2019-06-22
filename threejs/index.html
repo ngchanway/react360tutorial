@@ -3,8 +3,18 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>Draco Decoder - First Person Control</title>
-    <link rel="stylesheet" href="firstPerson.css">
+    <title>Erden View</title>
+    <link rel="icon" sizes="8x8" type="image/png" href="Firma Technologies FT_only.png" />
+    <!-- <link rel="manifest" href="%PUBLIC_URL%/manifest.json" /> -->
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <link rel="stylesheet" href="index.css">
     <script src="https://rawgit.com/mrdoob/three.js/master/build/three.min.js"></script>
     <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/WebGL.js"></script>
     <script src="https://rawgit.com/google/draco/master/javascript/example/DRACOLoader.js"></script>
@@ -29,13 +39,14 @@
         <br />
         Q, E = Fly up/down
         <br />
-        SPACE = Zoom in/out
-        <br />
         SHIFT = Boost
+        <br />
+        SPACE = Zoom in
         <br />
         MOUSE = Look around
       </div>
     </div>
-    <script src="firstPerson.js" charset="utf-8"></script>
+    <!-- <div id="loader"></div> -->
+    <script src="index.js" charset="utf-8"></script>
   </body>
 </html>
