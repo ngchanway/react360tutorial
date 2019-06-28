@@ -17,7 +17,6 @@ let blocker = document.getElementById('blocker');
 let instructions = document.getElementById('instructions');
 let pageWrapper = document.getElementById('page-wrapper');
 pageWrapper.style.display = 'none';
-// let loader = document.getElementById('loader');
 
 let moveForward = false;
 let moveBackward = false;
@@ -205,19 +204,10 @@ function initModel() {
     onDecode,
     function(xhr) {
       console.log((xhr.loaded/xhr.total*100) + '% loaded');
-      // loader.style.display = '';
-      const loader = document.createElement('div');
-      loader.setAttribute('id', 'loader');
-      // if (xhr.loaded < xhr.total) {
-      //   container.appendChild(loader);
-      //   instructions.style.display = 'none';
-      // } else {
-      //   container.removeChild(loader);
-      //   instructions.style.display = '';
-      // }
     },
     function(error) {
       console.log('An error happened');
+      alert('Loading Error');
     }
   );
   dracoLoader.decodeDracoFile('globalShifted_pointCloud_for_viewing.drc', onDecode);
@@ -279,7 +269,6 @@ function init() {
   initRender();
   initControls();
   initModel();
-  loader.style.display = 'none';
 }
 function animate() {
   requestAnimationFrame(animate);

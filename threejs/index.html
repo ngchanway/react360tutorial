@@ -2,51 +2,41 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>Erden View</title>
+    <title>Erden View Login</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link rel="icon" sizes="8x8" type="image/png" href="Firma Technologies FT_only.png" />
-    <!-- <link rel="manifest" href="%PUBLIC_URL%/manifest.json" /> -->
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
     <link rel="stylesheet" href="index.css">
-    <script src="https://rawgit.com/mrdoob/three.js/master/build/three.min.js"></script>
-    <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/WebGL.js"></script>
-    <script src="https://rawgit.com/google/draco/master/javascript/example/DRACOLoader.js"></script>
-    <script src="https://rawgit.com/google/draco/master/javascript/draco_decoder.js"></script>
-    <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/controls/PointerLockControls.js"></script>
-    <!-- <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/controls/OrbitControls.js"></script> -->
-    <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/libs/stats.min.js"></script>
-    <!-- <script src="https://rawgit.com/mrdoob/three.js/master/examples/js/libs/dat.gui.min.js"></script> -->
   </head>
   <body>
-    <div id="page-wrapper">
-      <h3>Open a draco compressed file (.drc):</h3>
-      <div>
-        <input type="file" id="fileInput">
-      </div>
+    <div id="logo" style="text-align: center">
+      <img src="Firma Technologies Logo.png" width="600px" align="center">
     </div>
-    <div id="blocker">
-      <div id="instructions">
-        <span id="instructionsheader">Click to play</span>
+    <div class="container" style="text-align: center">
+      <h3>Erden View Login</h3>
+      <form id="userDetails">
+        <div class="form-group">
+          <label for="username">User Name: </label>
+          <input type="username" class="form-control" id="username" placeholder="Enter User Name" name="username">
+        </div>
+        <div class="form-group">
+          <label for="pwd">Password: </label>
+          <input type="password" class="form-control" id="pwd" placeholder="Enter Password" name="pwd">
+        </div>
         <br />
-        W, A, S, D = Move
-        <br />
-        Q, E = Fly up/down
-        <br />
-        SHIFT = Boost
-        <br />
-        SPACE = Zoom in
-        <br />
-        MOUSE = Look around
-      </div>
+        <button type="submit" class="btn btn-info">Log In</button>
+      </form>
     </div>
-    <!-- <div id="loader"></div> -->
-    <script src="index.js" charset="utf-8"></script>
   </body>
+  <script>
+    $(document).on('click', '.btn-info', function(e) {
+      e.preventDefault();
+      let username = document.getElementById('username').value;
+      let pw = document.getElementById('pwd').value;
+      if (username === 'ft' && pw === 'password') {
+        window.location.replace("model.html");
+      } else {
+        alert('Invalid Credential')
+      }
+    });
+  </script>
 </html>
