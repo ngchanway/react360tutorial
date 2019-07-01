@@ -15,6 +15,7 @@ let stats = new Stats(); // stats
 
 let blocker = document.getElementById('blocker');
 let instructions = document.getElementById('instructions');
+instructions.style.display = 'none';
 let pageWrapper = document.getElementById('page-wrapper');
 pageWrapper.style.display = 'none';
 
@@ -316,6 +317,7 @@ function onDecode(bufferGeometry) {
   // scene.remove(selectedObject);
   geometry.name = 'model';
   scene.add(geometry);
+  instructions.style.display = '';
 }
 window.onload = () => {
   // const fileInput = document.getElementById('fileInput');
