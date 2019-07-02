@@ -211,13 +211,16 @@ function initModel() {
       alert('Loading Error');
     }
   );
-  dracoLoader.decodeDracoFile('globalShifted_pointCloud_for_viewing.drc', onDecode);
 }
-function addShadowedLight(x, y, z, color, intensity) {
-  const directionalLight = new THREE.DirectionalLight(color, intensity);
-  directionalLight.position.set(x, y, z);
-  directionalLight.castShadow = true;
-  scene.add(directionalLight);
+function onDecode(bufferGeometry) {
+  // const material = new THREE.MeshStandardMaterial({vertexColors: THREE.VertexColors});
+  const geometry = resizeGeometry(bufferGeometry);
+  // const selectedObject = scene.getObjectByName('model');
+  // scene.remove(selectedObject);
+  geometry.name = 'model';
+  scene.add(geometry);
+  THREE.DRACOLoader.releaseDecoderModule();
+  instructions.style.display = '';
 }
 function resizeGeometry(bufferGeometry) {
   let geometry, material;
@@ -260,11 +263,6 @@ function resizeGeometry(bufferGeometry) {
     geometry.position.z
   );
   return geometry;
-}
-function onWindowResize() {
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
 }
 function init() {
   initRender();
@@ -310,14 +308,10 @@ function animate() {
   }
   renderer.render(scene, camera);
 }
-function onDecode(bufferGeometry) {
-  // const material = new THREE.MeshStandardMaterial({vertexColors: THREE.VertexColors});
-  const geometry = resizeGeometry(bufferGeometry);
-  // const selectedObject = scene.getObjectByName('model');
-  // scene.remove(selectedObject);
-  geometry.name = 'model';
-  scene.add(geometry);
-  instructions.style.display = '';
+function onWindowResize() {
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 }
 window.onload = () => {
   // const fileInput = document.getElementById('fileInput');
